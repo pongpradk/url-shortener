@@ -23,12 +23,12 @@ func NewURLService(repo *repository.URLRepository) *URLService {
 func (s *URLService) ShortenURL(ctx context.Context, longURL string) (string, error) {
 	// Check if URL already exists
 	existing, err := s.repo.FindByLongURL(ctx, longURL)
-	if err != nil && !errors.Is(err, repository.ErrNotFound) {
-		return "", err
+	if err == nil {
+		return existing.ShortURL, nil
 	}
 
-	if existing != nil {
-		return existing.ShortURL, nil
+	if !errors.Is(err, repository.ErrNotFound) {
+		return "", err
 	}
 
 	// Generate unique ID from URL + timestamp
