@@ -23,14 +23,14 @@ This is an implementation of the **URL Shortener**, inspired by [ByteByteGo's Sy
 
 ## Installation & Setup
 
-### 1. Clone the Repository
+#### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/pongpradk/url-shortener.git
 cd url-shortener
 ```
 
-### 2. Configure Environment Variables
+#### 2. Configure Environment Variables
 
 ```bash
 cp .env.example .env
@@ -38,20 +38,20 @@ cp .env.example .env
 
 Update .env if needed (default values work for local development).
 
-### 3. Start PostgreSQL
+#### 3. Start PostgreSQL
 
 ```bash
 docker compose up -d
 
 ```
 
-### 4. Install Go Dependencies
+#### 4. Install Go Dependencies
 
 ```bash
 go mod download
 ```
 
-### 5. Run the Application
+#### 5. Run the Application
 
 ```bash
 go run cmd/server/main.go
@@ -110,7 +110,7 @@ Location: https://github.com/pongpradk/url-shortener
 Status: 301 Moved Permanently
 ```
 
-**Browser/cURL Example**
+**cURL Example**
 
 ```bash
 curl -L http://localhost:8080/79ng5VsdJ6s
