@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"errors"
+	"time"
+)
+
+var (
+	ErrNotFound = errors.New("record not found")
 )
 
 type URL struct {
-	ID       int64
-	ShortURL string
-	LongURL  string
+	ID        int64
+	ShortURL  string
+	LongURL   string
+	CreatedAt time.Time
 }
 
 type URLRepository struct {
@@ -20,15 +27,20 @@ func NewURLRepository(db *sql.DB) *URLRepository {
 }
 
 // FindByLongURL checks if long URL already exists
-func (r *URLRepository) FindByLongURL(longURL string) (*URL, error) {
+func (r *URLRepository) FindByLongURL(ctx context.Context, longURL string) (*URL, error) {
 	var url URL
-	query := "SELECT id, short_url, long_url FROM urls WHERE long_url = $1"
+	query := "SELECT id, short_url, long_url, created_at FROM urls WHERE long_url = $1"
 
-	err := r.db.QueryRow(query, longURL).Scan(&url.ID, &url.ShortURL, &url.LongURL)
-	if err == sql.ErrNoRows {
-		return nil, nil // Not found
-	}
+	err := r.db.QueryRowContext(ctx, query, longURL).Scan(
+		&url.ID,
+		&url.ShortURL,
+		&url.LongURL,
+		&url.CreatedAt,
+	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
 		return nil, err
 	}
 
@@ -36,15 +48,20 @@ func (r *URLRepository) FindByLongURL(longURL string) (*URL, error) {
 }
 
 // FindByShortURL retrieves long URL by short URL
-func (r *URLRepository) FindByShortURL(shortURL string) (*URL, error) {
+func (r *URLRepository) FindByShortURL(ctx context.Context, shortURL string) (*URL, error) {
 	var url URL
-	query := "SELECT id, short_url, long_url FROM urls WHERE short_url = $1"
+	query := "SELECT id, short_url, long_url, created_at FROM urls WHERE short_url = $1"
 
-	err := r.db.QueryRow(query, shortURL).Scan(&url.ID, &url.ShortURL, &url.LongURL)
-	if err == sql.ErrNoRows {
-		return nil, errors.New("URL not found")
-	}
+	err := r.db.QueryRowContext(ctx, query, shortURL).Scan(
+		&url.ID,
+		&url.ShortURL,
+		&url.LongURL,
+		&url.CreatedAt,
+	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
 		return nil, err
 	}
 
@@ -52,18 +69,23 @@ func (r *URLRepository) FindByShortURL(shortURL string) (*URL, error) {
 }
 
 // Create inserts a new URL mapping
-func (r *URLRepository) Create(shortURL, longURL string) (*URL, error) {
-	var id int64
-	query := "INSERT INTO urls (short_url, long_url) VALUES ($1, $2) RETURNING id"
+func (r *URLRepository) Create(ctx context.Context, shortURL, longURL string) (*URL, error) {
+	var url URL
+	query := `
+		INSERT INTO urls (short_url, long_url) 
+		VALUES ($1, $2) 
+		RETURNING id, short_url, long_url, created_at
+	`
 
-	err := r.db.QueryRow(query, shortURL, longURL).Scan(&id)
+	err := r.db.QueryRowContext(ctx, query, shortURL, longURL).Scan(
+		&url.ID,
+		&url.ShortURL,
+		&url.LongURL,
+		&url.CreatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &URL{
-		ID:       id,
-		ShortURL: shortURL,
-		LongURL:  longURL,
-	}, nil
+	return &url, nil
 }
