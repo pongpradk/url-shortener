@@ -1,6 +1,6 @@
 # URL Shortener
 
-[![Go Version](https://img.shields.io/badge/Go-1.24.11-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=flat&logo=postgresql)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -8,50 +8,16 @@
 
 ## About This Project
 
-This is an implementation of the **URL Shortener** system adapted from [ByteByteGo's System Design Interview: Design A URL Shortener](https://bytebytego.com/courses/system-design-interview/design-a-url-shortener). The goal is to deeply understand the system design concept by building them from scratch.
-
----
-
-## Architecture
-
-```
-        ┌─────────────┐
-        │   Client    │
-        └──────┬──────┘
-               │ HTTP Request
-               ↓
-┌─────────────────────────────────┐
-│       Gin HTTP Handler          │
-│  (URL validation & routing)     │
-└──────────────┬──────────────────┘
-               │
-               ↓
-┌─────────────────────────────────┐
-│      Business Logic Layer       │
-│  (URL shortening & retrieval)   │
-└──────────────┬──────────────────┘
-               │
-               ↓
-┌─────────────────────────────────┐
-│      Repository Layer           │
-│  (Database operations)          │
-└──────────────┬──────────────────┘
-               │
-               ↓
-┌─────────────────────────────────┐
-│      PostgreSQL Database        │
-│      (Persistent storage)       │
-└─────────────────────────────────┘
-```
+This is an implementation of the **URL Shortener**, inspired by [ByteByteGo's System Design Interview: Design A URL Shortener](https://bytebytego.com/courses/system-design-interview/design-a-url-shortener). The goal is to understand system design concepts by building core components from scratch.
 
 ---
 
 ## Tech Stack
 
-- **Language**: [Go 1.24.11](https://go.dev/)
-- **Web Framework**: [Gin](https://gin-gonic.com/)
-- **Database**: [PostgreSQL 15](https://www.postgresql.org/)
-- **Containerization**: [Docker](https://www.docker.com/)
+- **Language**: Go 1.24+
+- **Web Framework**: Gin
+- **Database**: PostgreSQL 15
+- **Containerization**: Docker & Docker Compose
 
 ---
 
@@ -66,15 +32,13 @@ cd url-shortener
 
 ### 2. Configure Environment Variables
 
-Copy the example environment file
-
 ```bash
 cp .env.example .env
-
-# Edit .env if needed (defaults work for local development)
 ```
 
-### 3. Start PostgreSQL Database
+Update .env if needed (default values work for local development).
+
+### 3. Start PostgreSQL
 
 ```bash
 docker compose up -d
@@ -97,13 +61,11 @@ go run cmd/server/main.go
 
 ## API Documentation
 
-### Endpoints
-
-#### 1. Shorten URL
+### 1. Shorten URL
 
 Create a short URL from a long URL.
 
-**Request:**
+**Request**
 
 ```http
 POST /api/v1/data/shorten
@@ -114,7 +76,7 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
+**Response**
 
 ```http
 HTTP/1.1 200 OK
@@ -125,7 +87,7 @@ Content-Type: application/json
 }
 ```
 
-**cURL Example:**
+**cURL Example**
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/data/shorten \
@@ -133,28 +95,25 @@ curl -X POST http://localhost:8080/api/v1/data/shorten \
   -d '{"longUrl": "https://github.com/pongpradk/url-shortener"}'
 ```
 
-#### 2. Redirect to Original URL
+### 2. Redirect to Original URL
 
-Access the short URL to be redirected to the original URL.
-
-**Request:**
+**Request**
 
 ```http
 GET /{shortUrl}
 ```
 
-**Response:**
+**Response**
 
 ```http
-HTTP/1.1 301 Moved Permanently
 Location: https://github.com/pongpradk/url-shortener
+Status: 301 Moved Permanently
 ```
 
-**Browser/cURL Example:**
+**Browser/cURL Example**
 
 ```bash
 curl -L http://localhost:8080/79ng5VsdJ6s
-# Redirects to the original URL
 ```
 
 ---
@@ -173,7 +132,7 @@ url-shortener-go/
 │   │   └── base62.go
 │   ├── handler/                 # HTTP request handlers (controllers)
 │   │   └── url_handler.go
-│   ├── repository/              # Database operations (repository layer)
+│   ├── repository/              # Data access (repository layer)
 │   │   ├── url_repository.go
 │   └── service/                 # Business logic (service layer)
 │       └── url_service.go
