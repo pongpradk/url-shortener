@@ -1,7 +1,7 @@
 -- Create urls table
 CREATE TABLE IF NOT EXISTS urls (
     id BIGSERIAL PRIMARY KEY,
-    short_url VARCHAR(10) UNIQUE NOT NULL,
+    short_url VARCHAR(20) UNIQUE NOT NULL,
     long_url TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
