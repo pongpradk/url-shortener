@@ -4,8 +4,6 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=flat&logo=postgresql)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A URL shortener service implementing concepts from **"System Design Interview"** by Alex Xu - ByteByteGo
-
 ---
 
 ## About This Project
