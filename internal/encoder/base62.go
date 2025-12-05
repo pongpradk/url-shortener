@@ -5,6 +5,7 @@ import (
 )
 
 const base62Chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const base uint64 = uint64(len(base62Chars))
 
 // Encode converts a number to base62 string
 func Encode(num uint64) string {
@@ -13,7 +14,6 @@ func Encode(num uint64) string {
 	}
 
 	var encoded strings.Builder
-	base := uint64(len(base62Chars))
 
 	for num > 0 {
 		remainder := num % base
@@ -27,9 +27,9 @@ func Encode(num uint64) string {
 }
 
 func reverse(s string) string {
-	runes := []rune(s)
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
+	bytes := []byte(s)
+	for i, j := 0, len(bytes)-1; i < j; i, j = i+1, j-1 {
+		bytes[i], bytes[j] = bytes[j], bytes[i]
 	}
-	return string(runes)
+	return string(bytes)
 }
