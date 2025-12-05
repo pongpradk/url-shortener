@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"time"
 
@@ -19,6 +18,19 @@ func NewURLService(repo *repository.URLRepository) *URLService {
 	return &URLService{repo: repo}
 }
 
+// generateUniqueID creates a unique ID from timestamp and input string
+func generateUniqueID(input string) uint64 {
+	uniqueID := uint64(time.Now().UnixNano())
+
+	// Mix in hash of input for extra randomness
+	hash := md5.Sum([]byte(input + time.Now().String()))
+	for i := range 8 {
+		uniqueID ^= uint64(hash[i]) << (i * 8)
+	}
+
+	return uniqueID
+}
+
 // ShortenURL creates a short URL from long URL
 func (s *URLService) ShortenURL(ctx context.Context, longURL string) (string, error) {
 	// Check if URL already exists
@@ -31,15 +43,7 @@ func (s *URLService) ShortenURL(ctx context.Context, longURL string) (string, er
 		return "", err
 	}
 
-	// Generate unique ID from URL + timestamp
-	hash := md5.Sum([]byte(longURL + time.Now().String()))
-	hashStr := hex.EncodeToString(hash[:])
-
-	// Convert first 8 bytes to uint64
-	var uniqueID uint64
-	for i := 0; i < 8 && i < len(hashStr); i++ {
-		uniqueID = uniqueID*256 + uint64(hashStr[i])
-	}
+	uniqueID := generateUniqueID(longURL)
 
 	// Generate short URL
 	shortURL := encoder.Encode(uniqueID)
