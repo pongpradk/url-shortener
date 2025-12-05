@@ -6,6 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/pongpradk/url-shortener/internal/database"
+	"github.com/pongpradk/url-shortener/internal/handler"
+	"github.com/pongpradk/url-shortener/internal/repository"
+	"github.com/pongpradk/url-shortener/internal/service"
 )
 
 func main() {
@@ -22,11 +25,24 @@ func main() {
 	defer db.Close()
 	log.Println("Database connected successfully!")
 
+	// Initialize layers
+	urlRepo := repository.NewURLRepository(db)
+	urlService := service.NewURLService(urlRepo)
+	urlHandler := handler.NewURLHandler(urlService)
+
+	// Create Gin router
 	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+
+	// API routes
+	api := router.Group("/api/v1")
+	{
+		api.POST("/data/shorten", urlHandler.HandleShorten)
+	}
+
+	// Redirect route
+	router.GET("/:shortUrl", urlHandler.HandleRedirect)
+
+	// Start server
+	log.Println("Server starting on :8080")
 	router.Run(":8080")
 }
