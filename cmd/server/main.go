@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -43,6 +44,7 @@ func main() {
 	router.GET("/:shortUrl", urlHandler.HandleRedirect)
 
 	// Start server
-	log.Println("Server starting on :8080")
-	router.Run(":8080")
+	port := os.Getenv("SERVER_PORT")
+	log.Printf("Server starting on :%s", port)
+	router.Run(":" + port)
 }
